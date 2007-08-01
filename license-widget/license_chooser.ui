@@ -89,7 +89,7 @@
        <item>
         <widget class="QLineEdit" name="licenseEdit" >
          <property name="text" >
-           <string>none</string>
+           <string>None</string>
          </property>
         </widget>
        </item>

@@ -31,7 +31,7 @@ K_EXPORT_COMPONENT_FACTORY( licenseprops, LicensePropsFactory( "licenseprops" ) 
 
 LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringList &) : KPropertiesDialogPlugin(_props)
 {
-	KVBox *m_vBox = new KVBox();
+	m_vBox = new KVBox();
 	
 	m_widget = new QWidget( m_vBox );
 	QVBoxLayout * vbox = new QVBoxLayout( m_widget );
@@ -49,7 +49,8 @@ LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringL
 		if (item->url().isLocalFile()) {
 			_props->addPage( m_vBox, i18n("&License") );
 
-			char *license = ll_read(item->localPath().toUtf8().data());
+			QByteArray ba = item->localPath().toUtf8();
+			char *license = ll_read(ba.data());
 
 			licenseChooser->setLicenseURI(QString::fromUtf8(license));
 		}
@@ -58,6 +59,7 @@ LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringL
 
 LicensePropsPlugin::~LicensePropsPlugin()
 {
+	delete m_vBox;
 	delete licenseChooser;
 }
 

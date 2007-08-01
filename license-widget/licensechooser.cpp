@@ -192,7 +192,7 @@ void LicenseChooser::updateLicense()
 	} else {
 		kDebug() << "No license matches" << endl;
 		chooserWidget->uriEdit->setText(QString::null);
-		chooserWidget->licenseEdit->setText(i18n("none"));
+		chooserWidget->licenseEdit->setText(i18n("None"));
 		emit licenseChanged();
 	}
 }
