@@ -35,8 +35,7 @@ public:
 
     /**
      * Apply all changes to the file.
-     * This function is called when the user presses 'Ok'. The last plugin inserted
-     * is called first.
+     * This function is called when the user presses 'Ok'.
      */
     virtual void applyChanges();
 

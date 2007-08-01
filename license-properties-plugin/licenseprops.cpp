@@ -31,8 +31,6 @@ K_EXPORT_COMPONENT_FACTORY( licenseprops, LicensePropsFactory( "licenseprops" ) 
 
 LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringList &) : KPropertiesDialogPlugin(_props)
 {
-	ll_init();
-
 	KVBox *m_vBox = new KVBox();
 	
 	m_widget = new QWidget( m_vBox );
@@ -60,7 +58,7 @@ LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringL
 
 LicensePropsPlugin::~LicensePropsPlugin()
 {
-	ll_stop();
+	delete licenseChooser;
 }
 
 bool LicensePropsPlugin::supports( const KFileItemList& items )
