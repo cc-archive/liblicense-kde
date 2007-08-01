@@ -41,12 +41,15 @@ KCMLiblicense::~KCMLiblicense()
 
 void KCMLiblicense::load()
 {
-	printf("load\n");
+	uri_t uri = ll_get_default();
+	licenseChooser->setLicenseURI(uri);
+	free(uri);
 }
 
 void KCMLiblicense::save()
 {
-	printf("save\n");
+	const QByteArray uri_ba = licenseChooser->licenseURI().toUtf8();
+	ll_set_default((const uri_t)uri_ba.data());
 }
 
 void KCMLiblicense::defaults()

@@ -199,13 +199,13 @@ void LicenseChooser::updateLicense()
 
 void LicenseChooser::updateLicense(const uri_t uri)
 {
-		chooserWidget->uriEdit->setText(QString::fromLatin1(uri));
+		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
 
 		int *v = ll_get_version(uri);
 
 		chooserWidget->licenseEdit->setText(
 			QString("%1 - %2.%3.%4")
-				.arg(QString::fromLatin1(ll_get_name(uri)))
+				.arg(QString::fromUtf8(ll_get_name(uri)))
 				.arg(v[0]).arg(v[1]).arg(v[2])
 		);
 		free(v);
