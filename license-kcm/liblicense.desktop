@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Default Content License
+Icon=scales
+Type=Service
+Exec=kcmshell liblicense
+Categories=QT;KDE;Liblicense;
+Keywords=license
+X-KDE-Library=liblicense
+X-KDE-FactoryName=liblicense
+Comment=Set the default license for content
+ServiceTypes=Application,KCModule
+X-KDE-System-Settings-Parent-Category=personal

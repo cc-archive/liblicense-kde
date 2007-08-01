@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Default Content License
+Icon=scales
+Type=Service
+Categories=QT;KDE;LicenseProps;
+Keywords=license
+X-KDE-Library=licenseprops
+X-KDE-FactoryName=licenseprops
+X-KDE-Protocol=file
+Comment=Default Content License
+ServiceTypes=KPropertiesDialog/Plugin,application/octet-stream
+NoDisplay=false
