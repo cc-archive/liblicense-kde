@@ -64,7 +64,12 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 	int i;
 	int len = ll_list_length(jurisdictions);
 	for (i=0; i<len; ++i) {
-		chooserWidget->jurisdictionComboBox->addItem(QIcon(QString(LICENSE_ICON_DIR "/%1.png").arg(jurisdictions[i])), jurisdictions[i], QVariant(jurisdictions[i]));
+		char *juris_name = ll_jurisdiction_name(jurisdictions[i]);
+		chooserWidget->jurisdictionComboBox->addItem(
+			QIcon(QString(LICENSE_ICON_DIR "/%1.png").arg(jurisdictions[i])),
+			juris_name, QVariant(jurisdictions[i])
+		);
+		free(juris_name);
 	}
 	ll_free_list(jurisdictions);
 
