@@ -201,12 +201,21 @@ void LicenseChooser::updateLicense(const uri_t uri)
 {
 		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
 
+		QString version;
 		int *v = ll_get_version(uri);
+		if (v) {
+			QStringList versionList;
+			int i;
+			for (i=1; i<=v[0]; ++i) {
+				versionList << QString::number(v[i]);
+			}
+			version = QString(" - %1").arg(versionList.join("."));
+		}
 
 		chooserWidget->licenseEdit->setText(
-			QString("%1 - %2.%3.%4")
+			QString("%1%2")
 				.arg(QString::fromUtf8(ll_get_name(uri)))
-				.arg(v[0]).arg(v[1]).arg(v[2])
+				.arg(version)
 		);
 		free(v);
 }
