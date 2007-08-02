@@ -60,9 +60,13 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 
 	permits_flags = requires_flags = prohibits_flags = LL_UNSPECIFIED;
 
-	chooserWidget->jurisdictionComboBox->addItem(QIcon(LICENSE_ICON_DIR "/unported.png"), i18n("Unported"), QVariant(QString::null));
-	chooserWidget->jurisdictionComboBox->addItem(QIcon(LICENSE_ICON_DIR "/uk.png"), i18n("United Kingdom"), QVariant("uk"));
-	chooserWidget->jurisdictionComboBox->addItem(QIcon(LICENSE_ICON_DIR "/us.png"), i18n("United States"), QVariant("us"));
+	juris_t *jurisdictions = ll_get_jurisdictions();
+	int i;
+	int len = ll_list_length(jurisdictions);
+	for (i=0; i<len; ++i) {
+		chooserWidget->jurisdictionComboBox->addItem(QIcon(QString(LICENSE_ICON_DIR "/%1.png").arg(jurisdictions[i])), jurisdictions[i], QVariant(jurisdictions[i]));
+	}
+	ll_free_list(jurisdictions);
 
 	// CLEANUP: icon paths
 	chooserWidget->attributionCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/by.svg") );
@@ -146,6 +150,7 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 
 	char *j = ll_get_jurisdiction(uri);
 	QString juris = QString::fromLatin1(j);
+	kDebug() << "juris: " << juris << endl;
 	int i;
 	for (i=0; i<chooserWidget->jurisdictionComboBox->count(); ++i) {
 		if (juris == chooserWidget->jurisdictionComboBox->itemData(i).toString()) {
@@ -176,8 +181,6 @@ void LicenseChooser::updateChooser()
 {
 	QByteArray juris_ba = chooserWidget->jurisdictionComboBox->itemData( chooserWidget->jurisdictionComboBox->currentIndex() ).toString().toLatin1();
 	char *juris = juris_ba.data();
-	if ( juris[0] == '\0' ) juris = NULL;
-
 	kDebug() << "juris: " << juris << endl;
 	chooser = ll_new_license_chooser(juris,attributes);
 }
