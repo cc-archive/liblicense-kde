@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" >
    <item>
@@ -43,11 +43,11 @@
    </item>
    <item>
     <widget class="QCheckBox" name="shareAlikeCheckBox" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
      <property name="text" >
       <string>Require Others to Share-Alike</string>
-     </property>
-     <property name="enabled" >
-       <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -68,7 +68,7 @@
        <item>
         <widget class="QLabel" name="label" >
          <property name="text" >
-          <string>Jurisdiction</string>
+          <string>Jurisdiction:</string>
          </property>
         </widget>
        </item>
@@ -89,7 +89,10 @@
        <item>
         <widget class="QLineEdit" name="licenseEdit" >
          <property name="text" >
-           <string>None</string>
+          <string>None</string>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -104,12 +107,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="uriEdit" >
-         <property name="enabled" >
+        <widget class="QComboBox" name="uriCombo" >
+         <property name="editable" >
           <bool>true</bool>
-         </property>
-         <property name="text" >
-          <string/>
          </property>
         </widget>
        </item>

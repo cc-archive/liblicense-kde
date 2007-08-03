@@ -21,6 +21,8 @@
 #include <liblicense.h>
 
 #include <kgenericfactory.h>
+#include <kglobal.h>
+#include <klocale.h>
 
 typedef KGenericFactory<KCMLiblicense, QWidget> LibLicenseFactory;
 K_EXPORT_COMPONENT_FACTORY( liblicense, LibLicenseFactory( "liblicense" ) );
@@ -30,6 +32,8 @@ KCMLiblicense::KCMLiblicense(QWidget *parent, const QStringList &) :
 {
 	licenseChooser = new LicenseChooser(this);
 	connect( licenseChooser, SIGNAL(licenseChanged()), this, SLOT(changed()) );
+
+	KGlobal::locale()->insertCatalog("liblicense");
 
 	load();
 }

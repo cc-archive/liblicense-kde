@@ -20,9 +20,10 @@
 
 #include <QWidget>
 
-class Ui_LicenseChooserWidget;
-
 #include <liblicense.h>
+
+class Ui_LicenseChooserWidget;
+class QSignalMapper;
 
 class LicenseChooser : public QWidget
 {
@@ -44,6 +45,7 @@ private slots:
 	void updateChooser();
 	void updateLicense();
 	void updateLicense(const uri_t uri);
+	void licenseChanged(const QString &uri);
 
 private:
 	ll_license_chooser_t *chooser;
@@ -51,6 +53,7 @@ private:
 	int requires_flags;
 	int prohibits_flags;
 
+	QSignalMapper *signalMapper;
 	Ui_LicenseChooserWidget *chooserWidget;
 };
 

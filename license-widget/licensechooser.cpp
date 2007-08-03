@@ -17,7 +17,6 @@
 
 #include "licensechooser.h"
 #include "licensechooser.moc"
-
 #include "ui_license_chooser.h"
 
 #include <QtCore/QSignalMapper>
@@ -67,7 +66,8 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 		char *juris_name = ll_jurisdiction_name(jurisdictions[i]);
 		chooserWidget->jurisdictionComboBox->addItem(
 			QIcon(QString(LICENSE_ICON_DIR "/%1.png").arg(jurisdictions[i])),
-			juris_name, QVariant(jurisdictions[i])
+			QString::fromUtf8(juris_name),
+			QVariant(jurisdictions[i])
 		);
 		free(juris_name);
 	}
@@ -80,9 +80,9 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 	chooserWidget->noCommercialCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/pcw.svg") );
 	chooserWidget->shareAlikeCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/sa.svg") );
 
-	connect(chooserWidget->uriEdit,SIGNAL(textChanged(const QString &)),this,SIGNAL(licenseChanged()));
+	connect(chooserWidget->uriCombo,SIGNAL(currentIndexChanged(const QString &)),this,SLOT(licenseChanged(const QString &)));
 
-	QSignalMapper *signalMapper = new QSignalMapper(this);
+	signalMapper = new QSignalMapper(this);
 
 	connect(chooserWidget->attributionCheckBox, SIGNAL(stateChanged(int)), signalMapper, SLOT(map()));
 	connect(chooserWidget->sharingCheckBox, SIGNAL(stateChanged(int)), signalMapper, SLOT(map()));
@@ -112,7 +112,7 @@ LicenseChooser::~LicenseChooser()
 
 QString LicenseChooser::licenseURI()
 {
-	return chooserWidget->uriEdit->text();
+	return chooserWidget->uriCombo->currentText();
 }
 
 void LicenseChooser::setLicenseURI( const QString &uriString )
@@ -123,8 +123,18 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	const QByteArray uri_ba = uriString.toUtf8();
 	const uri_t uri = (const uri_t)uri_ba.data();
 
+	signalMapper->blockSignals(true);
+	chooserWidget->sharingCheckBox->setChecked(false);
+	chooserWidget->remixingCheckBox->setChecked(false);
+	chooserWidget->attributionCheckBox->setChecked(false);
+	chooserWidget->shareAlikeCheckBox->setChecked(false);
+	chooserWidget->noCommercialCheckBox->setChecked(false);
+	permits_flags = requires_flags = prohibits_flags = LL_UNSPECIFIED;
+	signalMapper->blockSignals(false);
+
 	if ( !ll_verify_uri(uri) ) {
-		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
+		kDebug() << "Setting combo to: " << uriString << endl;
+		chooserWidget->uriCombo->setEditText(uriString);
 		return;
 	}
 
@@ -155,7 +165,6 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 
 	char *j = ll_get_jurisdiction(uri);
 	QString juris = QString::fromLatin1(j);
-	kDebug() << "juris: " << juris << endl;
 	int i;
 	for (i=0; i<chooserWidget->jurisdictionComboBox->count(); ++i) {
 		if (juris == chooserWidget->jurisdictionComboBox->itemData(i).toString()) {
@@ -173,6 +182,9 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	juris_found:
 	free(j);
 
+	kDebug() << "Setting combo to: " << uriString << endl;
+	chooserWidget->uriCombo->setEditText(uriString);
+
 	updateLicense(uri);
 }
 
@@ -186,20 +198,29 @@ void LicenseChooser::updateChooser()
 {
 	QByteArray juris_ba = chooserWidget->jurisdictionComboBox->itemData( chooserWidget->jurisdictionComboBox->currentIndex() ).toString().toLatin1();
 	char *juris = juris_ba.data();
-	kDebug() << "juris: " << juris << endl;
 	chooser = ll_new_license_chooser(juris,attributes);
 }
 
 void LicenseChooser::updateLicense()
 {
 	print_flags(attributes,permits_flags,requires_flags,prohibits_flags);
+
+	chooserWidget->uriCombo->clear();
+
 	const ll_license_list_t *licenses = ll_get_licenses_from_flags(chooser,permits_flags,requires_flags,prohibits_flags);
 	if (licenses) {
 		const uri_t uri = (const uri_t)licenses->license;
 		updateLicense(uri);
+
+		const ll_license_list_t *license = licenses;
+		while (license) {
+			kDebug() << "adding combo item: " << license->license << endl;
+			chooserWidget->uriCombo->addItem(QString::fromUtf8(license->license));
+			license = license->next;
+		}
 	} else {
 		kDebug() << "No license matches" << endl;
-		chooserWidget->uriEdit->setText(QString::null);
+		chooserWidget->uriCombo->setEditText(QString::null);
 		chooserWidget->licenseEdit->setText(i18n("None"));
 		emit licenseChanged();
 	}
@@ -207,8 +228,6 @@ void LicenseChooser::updateLicense()
 
 void LicenseChooser::updateLicense(const uri_t uri)
 {
-		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
-
 		QString version;
 		int *v = ll_get_version(uri);
 		if (v) {
@@ -230,7 +249,6 @@ void LicenseChooser::updateLicense(const uri_t uri)
 
 void LicenseChooser::checkBoxClicked(QWidget *checkBox)
 {
-	kDebug() << checkBox->objectName() << " clicked" << endl;
 	if ( checkBox == chooserWidget->attributionCheckBox ) {
 		requires_flags ^= ll_attribute_flag(chooser,"http://creativecommons.org/ns#Attribution");
 	} else if ( checkBox == chooserWidget->sharingCheckBox ) {
@@ -239,7 +257,7 @@ void LicenseChooser::checkBoxClicked(QWidget *checkBox)
 		permits_flags ^= ll_attribute_flag(chooser,"http://creativecommons.org/ns#DerivativeWorks");
 
 		chooserWidget->shareAlikeCheckBox->setEnabled( chooserWidget->remixingCheckBox->isChecked() );
-		if (!chooserWidget->remixingCheckBox->isChecked())
+		if (!chooserWidget->remixingCheckBox->isChecked() && chooserWidget->shareAlikeCheckBox->isChecked())
 			chooserWidget->shareAlikeCheckBox->setChecked(false);
 
 	} else if ( checkBox == chooserWidget->noCommercialCheckBox ) {
@@ -249,4 +267,12 @@ void LicenseChooser::checkBoxClicked(QWidget *checkBox)
 	}
 
 	updateLicense();
+}
+
+void LicenseChooser::licenseChanged(const QString &uri)
+{
+	QByteArray data = uri.toUtf8();
+	updateLicense(data.data());
+	
+	emit licenseChanged();
 }
