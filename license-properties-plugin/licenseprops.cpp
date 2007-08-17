@@ -32,8 +32,6 @@ K_EXPORT_COMPONENT_FACTORY( licenseprops, LicensePropsFactory( "licenseprops" ) 
 
 LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringList &) : KPropertiesDialogPlugin(_props)
 {
-	KGlobal::locale()->insertCatalog("liblicense");
-
 	m_vBox = new KVBox();
 	
 	m_widget = new QWidget( m_vBox );
@@ -82,8 +80,6 @@ bool LicensePropsPlugin::supports( const KFileItemList& items )
 
 void LicensePropsPlugin::applyChanges()
 {
-	kDebug() << "LicensePropsPlugin::applyChanges" << endl;
-
 	KFileItem *item = properties->item();
 	QByteArray byteArray = licenseChooser->licenseURI().toUtf8();
 		
@@ -91,7 +87,6 @@ void LicensePropsPlugin::applyChanges()
 	//only valid as long as the QByteArray is around
 	char *license = byteArray.data();
 	if (license[0] == '\0') license = NULL;
-	kDebug() << "writing license: " << license << endl;
 
 	QByteArray pathData = item->localPath().toUtf8();
 	ll_write(pathData.data(),license);

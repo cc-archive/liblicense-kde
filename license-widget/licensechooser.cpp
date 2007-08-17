@@ -66,14 +66,13 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 		char *juris_name = ll_jurisdiction_name(jurisdictions[i]);
 		chooserWidget->jurisdictionComboBox->addItem(
 			QIcon(QString(LICENSE_ICON_DIR "/%1.png").arg(jurisdictions[i])),
-			QString::fromUtf8(juris_name),
+			i18n(juris_name),
 			QVariant(jurisdictions[i])
 		);
 		free(juris_name);
 	}
 	ll_free_list(jurisdictions);
 
-	// CLEANUP: icon paths
 	chooserWidget->attributionCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/by.svg") );
 	chooserWidget->sharingCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/ash.svg") );
 	chooserWidget->remixingCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/ar.svg") );
@@ -133,7 +132,6 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	signalMapper->blockSignals(false);
 
 	if ( !ll_verify_uri(uri) ) {
-		kDebug() << "Setting combo to: " << uriString << endl;
 		chooserWidget->uriCombo->setEditText(uriString);
 		return;
 	}
@@ -146,6 +144,7 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 			chooserWidget->remixingCheckBox->setChecked(true);
 		}
 	}
+	ll_free_list(attrs);
 
 	attrs = ll_get_requires(uri);
 	for (attr=attrs; *attr; ++attr) {
@@ -155,6 +154,7 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 			chooserWidget->shareAlikeCheckBox->setChecked(true);
 		}
 	}
+	ll_free_list(attrs);
 
 	attrs = ll_get_prohibits(uri);
 	for (attr=attrs; *attr; ++attr) {
@@ -162,6 +162,7 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 			chooserWidget->noCommercialCheckBox->setChecked(true);
 		}
 	}
+	ll_free_list(attrs);
 
 	char *j = ll_get_jurisdiction(uri);
 	QString juris = QString::fromLatin1(j);
@@ -182,7 +183,6 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	juris_found:
 	free(j);
 
-	kDebug() << "Setting combo to: " << uriString << endl;
 	chooserWidget->uriCombo->setEditText(uriString);
 
 	updateLicense(uri);
@@ -214,12 +214,10 @@ void LicenseChooser::updateLicense()
 
 		const ll_license_list_t *license = licenses;
 		while (license) {
-			kDebug() << "adding combo item: " << license->license << endl;
 			chooserWidget->uriCombo->addItem(QString::fromUtf8(license->license));
 			license = license->next;
 		}
 	} else {
-		kDebug() << "No license matches" << endl;
 		chooserWidget->uriCombo->setEditText(QString::null);
 		chooserWidget->licenseEdit->setText(i18n("None"));
 		emit licenseChanged();

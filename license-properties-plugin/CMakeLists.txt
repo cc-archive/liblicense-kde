@@ -4,8 +4,6 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/license-widget ${LIBLICENSE_INCLUDE_DIR
 
 SET(propsLiblicenseSources licenseprops.cpp ../license-widget/licensechooser.cpp)
 
-KDE4_AUTOMOC( ${propsLiblicenseSources} )
-
 KDE4_ADD_UI_FILES( propsLiblicenseSources ../license-widget/license_chooser.ui )
 
 KDE4_ADD_PLUGIN(licenseprops ${propsLiblicenseSources})

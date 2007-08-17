@@ -23,6 +23,7 @@
 #include <kgenericfactory.h>
 #include <kglobal.h>
 #include <klocale.h>
+#include <kaboutdata.h>
 
 typedef KGenericFactory<KCMLiblicense, QWidget> LibLicenseFactory;
 K_EXPORT_COMPONENT_FACTORY( liblicense, LibLicenseFactory( "liblicense" ) );
@@ -30,10 +31,18 @@ K_EXPORT_COMPONENT_FACTORY( liblicense, LibLicenseFactory( "liblicense" ) );
 KCMLiblicense::KCMLiblicense(QWidget *parent, const QStringList &) :
 	  KCModule(LibLicenseFactory::componentData(), parent/*, name*/)
 {
+	KAboutData * about = new KAboutData("kcmliblicense", "liblicense",
+	                                    ki18n("Default Content License"),
+	                                    "0.1",
+	                                    ki18n("Default Content License Control Panel Module"),
+	                                    KAboutData::License_LGPL_V2,
+	                                    ki18n("(c) 2007 Jason Kivlighn"));
+	about->addAuthor(ki18n("Jason Kivlighn"), KLocalizedString(), "jkivlighn@gmail.com");
+
+	setAboutData( about );
+
 	licenseChooser = new LicenseChooser(this);
 	connect( licenseChooser, SIGNAL(licenseChanged()), this, SLOT(changed()) );
-
-	KGlobal::locale()->insertCatalog("liblicense");
 
 	load();
 }
