@@ -54,6 +54,30 @@
    <item>
     <layout class="QHBoxLayout" >
      <item>
+      <widget class="QLabel" name="warningIconLabel" >
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="warningLabel" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
       <layout class="QVBoxLayout" >
        <item>
         <widget class="QLabel" name="label_2" >
@@ -124,8 +148,8 @@
      </property>
      <property name="sizeHint" >
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>281</width>
+       <height>61</height>
       </size>
      </property>
     </spacer>

@@ -7,6 +7,6 @@ Categories=QT;KDE;Liblicense;
 Keywords=license
 X-KDE-Library=liblicense
 X-KDE-FactoryName=liblicense
-Comment=Set the default license for content
+Comment=Set the default content license when using the license chooser
 ServiceTypes=Application,KCModule
 X-KDE-System-Settings-Parent-Category=personal

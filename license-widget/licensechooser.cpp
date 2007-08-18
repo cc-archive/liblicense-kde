@@ -22,6 +22,8 @@
 #include <QtCore/QSignalMapper>
 #include <kdebug.h>
 #include <klocale.h>
+#include <kiconloader.h>
+#include <kglobal.h>
 
 char *attributes[] = {
 		"http://creativecommons.org/ns#Distribution",
@@ -72,6 +74,10 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 		free(juris_name);
 	}
 	ll_free_list(jurisdictions);
+
+	KIconLoader loader;
+	chooserWidget->warningIconLabel->setPixmap( loader.loadIcon("dialog-warning", K3Icon::Toolbar ) );
+	chooserWidget->warningLabel->setText("<b>"+i18n("WARNING: ")+"</b>"+i18n("No such license exists."));
 
 	chooserWidget->attributionCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/by.svg") );
 	chooserWidget->sharingCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/ash.svg") );
@@ -217,7 +223,11 @@ void LicenseChooser::updateLicense()
 			chooserWidget->uriCombo->addItem(QString::fromUtf8(license->license));
 			license = license->next;
 		}
+		chooserWidget->warningIconLabel->hide();
+		chooserWidget->warningLabel->hide();
 	} else {
+		chooserWidget->warningIconLabel->show();
+		chooserWidget->warningLabel->show();
 		chooserWidget->uriCombo->setEditText(QString::null);
 		chooserWidget->licenseEdit->setText(i18n("None"));
 		emit licenseChanged();
