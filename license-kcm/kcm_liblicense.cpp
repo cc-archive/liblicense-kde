@@ -54,9 +54,7 @@ KCMLiblicense::~KCMLiblicense()
 
 void KCMLiblicense::load()
 {
-	uri_t uri = ll_get_default();
-	licenseChooser->setLicenseURI(uri);
-	free(uri);
+	licenseChooser->restoreDefault();
 }
 
 void KCMLiblicense::save()

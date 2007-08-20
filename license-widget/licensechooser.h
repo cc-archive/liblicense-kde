@@ -33,6 +33,7 @@ public:
 	LicenseChooser(QWidget *);
 	virtual ~LicenseChooser();
 
+	void restoreDefault();
 	QString licenseURI();
 	void setLicenseURI( const QString & );
 
@@ -44,8 +45,8 @@ private slots:
 	void updateJurisdiction();
 	void updateChooser();
 	void updateLicense();
-	void updateLicense(const uri_t uri);
-	void licenseChanged(const QString &uri);
+	void licenseChanged(int);
+	void useLicenseToggled(bool on);
 
 private:
 	ll_license_chooser_t *chooser;

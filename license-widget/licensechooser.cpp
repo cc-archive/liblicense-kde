@@ -85,7 +85,11 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 	chooserWidget->noCommercialCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/pcw.svg") );
 	chooserWidget->shareAlikeCheckBox->setIcon( QIcon(LICENSE_ICON_DIR "/sa.svg") );
 
-	connect(chooserWidget->uriCombo,SIGNAL(currentIndexChanged(const QString &)),this,SLOT(licenseChanged(const QString &)));
+	connect(chooserWidget->licenseCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(licenseChanged(int)));
+
+	connect(chooserWidget->useLicenseButton,SIGNAL(toggled(bool)),this,SLOT(useLicenseToggled(bool)));
+
+	connect(chooserWidget->useLicenseButton,SIGNAL(toggled(bool)),this,SLOT(useLicenseToggled(bool)));
 
 	signalMapper = new QSignalMapper(this);
 
@@ -106,7 +110,7 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 
 	connect(chooserWidget->jurisdictionComboBox, SIGNAL(activated(int)), this, SLOT(updateJurisdiction()));
 
-	updateChooser();
+	chooser = ll_new_license_chooser(NULL,attributes);
 }
 
 LicenseChooser::~LicenseChooser()
@@ -115,13 +119,31 @@ LicenseChooser::~LicenseChooser()
 	ll_stop();
 }
 
+void LicenseChooser::restoreDefault()
+{
+	uri_t uri = ll_get_default();
+	setLicenseURI(uri);
+	free(uri);
+}
+
 QString LicenseChooser::licenseURI()
 {
-	return chooserWidget->uriCombo->currentText();
+	if (chooserWidget->useLicenseButton->isChecked()) {
+		return chooserWidget->uriEdit->text();
+	} else {
+		return QString::null;
+	}
 }
 
 void LicenseChooser::setLicenseURI( const QString &uriString )
 {
+	kDebug() << "Setting license URI: '" << uriString << "'" << endl;
+	if ( uriString.isEmpty() ) {
+		chooserWidget->noLicenseButton->setChecked(true);
+	} else {
+		chooserWidget->useLicenseButton->setChecked(true);
+	}
+
 	char **attr;
 	char **attrs;
 
@@ -138,9 +160,31 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	signalMapper->blockSignals(false);
 
 	if ( !ll_verify_uri(uri) ) {
-		chooserWidget->uriCombo->setEditText(uriString);
+		kDebug() << "Unable to verify license URI: " << uri << endl;
+		chooserWidget->uriEdit->setText(uriString);
 		return;
 	}
+
+	char *j = ll_get_jurisdiction(uri);
+	QString juris = QString::fromLatin1(j);
+	int i;
+	for (i=0; i<chooserWidget->jurisdictionComboBox->count(); ++i) {
+		if (juris == chooserWidget->jurisdictionComboBox->itemData(i).toString()) {
+			if (chooserWidget->jurisdictionComboBox->currentIndex() != i) {
+				chooserWidget->jurisdictionComboBox->setCurrentIndex(i);
+				updateChooser();
+			}
+			goto juris_found;
+		}
+	}
+	//no match found, set to unported
+	if (chooserWidget->jurisdictionComboBox->currentIndex() != 0) {
+		chooserWidget->jurisdictionComboBox->setCurrentIndex(0);
+		updateChooser();
+	}
+
+	juris_found:
+	free(j);
 
 	attrs = ll_get_permits(uri);
 	for (attr=attrs; *attr; ++attr) {
@@ -170,28 +214,9 @@ void LicenseChooser::setLicenseURI( const QString &uriString )
 	}
 	ll_free_list(attrs);
 
-	char *j = ll_get_jurisdiction(uri);
-	QString juris = QString::fromLatin1(j);
-	int i;
-	for (i=0; i<chooserWidget->jurisdictionComboBox->count(); ++i) {
-		if (juris == chooserWidget->jurisdictionComboBox->itemData(i).toString()) {
-			chooserWidget->jurisdictionComboBox->setCurrentIndex(i);
-			updateChooser();
-			goto juris_found;
-		}
-	}
-	//no match found, set to unported
-	if ( chooserWidget->jurisdictionComboBox->currentIndex() != 0 ) {
-		chooserWidget->jurisdictionComboBox->setCurrentIndex(0);
-		updateChooser();
-	}
-
-	juris_found:
-	free(j);
-
-	chooserWidget->uriCombo->setEditText(uriString);
-
-	updateLicense(uri);
+	updateLicense();
+	chooserWidget->uriEdit->setText(uriString); //do this after updateLicense() in case this is a custom uri
+	emit licenseChanged();
 }
 
 void LicenseChooser::updateJurisdiction()
@@ -211,48 +236,46 @@ void LicenseChooser::updateLicense()
 {
 	print_flags(attributes,permits_flags,requires_flags,prohibits_flags);
 
-	chooserWidget->uriCombo->clear();
+	chooserWidget->licenseCombo->clear();
 
 	const ll_license_list_t *licenses = ll_get_licenses_from_flags(chooser,permits_flags,requires_flags,prohibits_flags);
 	if (licenses) {
 		const uri_t uri = (const uri_t)licenses->license;
-		updateLicense(uri);
+		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
 
+		char *name;
+		int *v;
+		QString version;
 		const ll_license_list_t *license = licenses;
 		while (license) {
-			chooserWidget->uriCombo->addItem(QString::fromUtf8(license->license));
+			name = ll_get_name((uri_t)license->license);
+			v = ll_get_version((uri_t)license->license);
+			if (v) {
+				QStringList versionList;
+				int i;
+				for (i=1; i<=v[0]; ++i) {
+					versionList << QString::number(v[i]);
+				}
+				version = QString(" - %1").arg(versionList.join("."));
+			}
+	
+			name = ll_get_name((uri_t)license->license);
+			chooserWidget->licenseCombo->addItem(QString("%1%2")
+					.arg(QString::fromUtf8(name))
+					.arg(version), QVariant(QString(license->license)));
+
+			free(name);
+			free(v);
+
 			license = license->next;
 		}
-		chooserWidget->warningIconLabel->hide();
-		chooserWidget->warningLabel->hide();
+		chooserWidget->warningWidget->hide();
 	} else {
-		chooserWidget->warningIconLabel->show();
-		chooserWidget->warningLabel->show();
-		chooserWidget->uriCombo->setEditText(QString::null);
-		chooserWidget->licenseEdit->setText(i18n("None"));
-		emit licenseChanged();
+		chooserWidget->warningWidget->show();
+		chooserWidget->licenseCombo->clear();
+		chooserWidget->licenseCombo->addItem(i18n("None"));
+		chooserWidget->uriEdit->clear();
 	}
-}
-
-void LicenseChooser::updateLicense(const uri_t uri)
-{
-		QString version;
-		int *v = ll_get_version(uri);
-		if (v) {
-			QStringList versionList;
-			int i;
-			for (i=1; i<=v[0]; ++i) {
-				versionList << QString::number(v[i]);
-			}
-			version = QString(" - %1").arg(versionList.join("."));
-		}
-
-		chooserWidget->licenseEdit->setText(
-			QString("%1%2")
-				.arg(QString::fromUtf8(ll_get_name(uri)))
-				.arg(version)
-		);
-		free(v);
 }
 
 void LicenseChooser::checkBoxClicked(QWidget *checkBox)
@@ -277,10 +300,17 @@ void LicenseChooser::checkBoxClicked(QWidget *checkBox)
 	updateLicense();
 }
 
-void LicenseChooser::licenseChanged(const QString &uri)
+void LicenseChooser::licenseChanged(int index)
 {
-	QByteArray data = uri.toUtf8();
-	updateLicense(data.data());
+	QString uri = chooserWidget->licenseCombo->itemData(index).toString();
+	chooserWidget->uriEdit->setText(uri);
 	
 	emit licenseChanged();
 }
+
+void LicenseChooser::useLicenseToggled(bool on)
+{
+	chooserWidget->chooserWidgets->setEnabled(on);
+	emit licenseChanged();
+}
+
