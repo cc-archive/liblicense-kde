@@ -16,19 +16,19 @@
    <item>
     <layout class="QHBoxLayout" >
      <item>
-      <widget class="QRadioButton" name="useLicenseButton" >
-       <property name="text" >
-        <string>Set License:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QRadioButton" name="noLicenseButton" >
        <property name="text" >
         <string>No License</string>
        </property>
        <property name="checked" >
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="useLicenseButton" >
+       <property name="text" >
+        <string>License Selected Below</string>
        </property>
       </widget>
      </item>

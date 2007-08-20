@@ -25,7 +25,7 @@
 #include <kiconloader.h>
 #include <kglobal.h>
 
-char *attributes[] = {
+const char *attributes[] = {
 		"http://creativecommons.org/ns#Distribution",
 		"http://creativecommons.org/ns#CommercialUse",
 		"http://creativecommons.org/ns#DerivativeWorks",
@@ -34,7 +34,7 @@ char *attributes[] = {
 		NULL
 };
 
-void print_flags( char **attributes, int p, int r, int pr )
+void print_flags( const char **attributes, int p, int r, int pr )
 {
 	kDebug() << "Selected flags:" << endl;
 	int i = 0;
