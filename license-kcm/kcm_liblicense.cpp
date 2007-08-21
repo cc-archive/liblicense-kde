@@ -33,7 +33,7 @@ KCMLiblicense::KCMLiblicense(QWidget *parent, const QStringList &) :
 {
 	KAboutData * about = new KAboutData("kcmliblicense", "liblicense",
 	                                    ki18n("Default Content License"),
-	                                    "0.1",
+	                                    "0.4",
 	                                    ki18n("Default Content License Control Panel Module"),
 	                                    KAboutData::License_LGPL_V2,
 	                                    ki18n("(c) 2007 Jason Kivlighn"));
