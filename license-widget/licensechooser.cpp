@@ -135,13 +135,15 @@ QString LicenseChooser::licenseURI()
 	}
 }
 
-void LicenseChooser::setLicenseURI( const QString &uriString )
+void LicenseChooser::setLicenseURI( const QString &uriString, bool useImmediately )
 {
 	kDebug() << "Setting license URI: '" << uriString << "'" << endl;
-	if ( uriString.isEmpty() ) {
-		chooserWidget->noLicenseButton->setChecked(true);
-	} else {
-		chooserWidget->useLicenseButton->setChecked(true);
+	if (useImmediately) {
+		if ( uriString.isEmpty() ) {
+			chooserWidget->noLicenseButton->setChecked(true);
+		} else {
+			chooserWidget->useLicenseButton->setChecked(true);
+		}
 	}
 
 	char **attr;

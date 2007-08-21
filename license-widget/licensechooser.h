@@ -33,9 +33,14 @@ public:
 	LicenseChooser(QWidget *);
 	virtual ~LicenseChooser();
 
-	void restoreDefault();
 	QString licenseURI();
-	void setLicenseURI( const QString & );
+
+public slots:
+	void restoreDefault();
+
+	//if useImmediately is false, all fields will still be filled in, but
+	//the chooser won't select the "License selected below" radio button
+	void setLicenseURI( const QString &, bool useImmediately=true );
 
 signals:
 	void licenseChanged();

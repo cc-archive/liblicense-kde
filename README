@@ -1,8 +1,8 @@
 This package provides KDE license integration through liblicense.  It provides a KDE Properties Dialog Plugin, used to read and set licenses through supported KDE applications (such as Konqueror and Dolphin).  This package also provide a System Settings module for setting the default content for license.
 
 == Dependancies ==
-* liblicense >= 0.3
-* KDE4
+* liblicense >= 0.4
+* kdelibs4 (tested on Alpha2 and Beta1)
 * CMake
 
 == Build instructions == 

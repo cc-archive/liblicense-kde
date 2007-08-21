@@ -19,8 +19,10 @@
 #include "licenseprops.moc"
 
 #include <kvbox.h>
+#include <klocale.h>
 #include <QtCore/QSignalMapper>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 #include <kgenericfactory.h>
 #include <kglobal.h>
@@ -52,8 +54,14 @@ LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringL
 
 			QByteArray ba = item->localPath().toUtf8();
 			char *license = ll_read(ba.data());
-
-			licenseChooser->setLicenseURI(QString::fromUtf8(license));
+			
+			if (license) {
+				licenseChooser->setLicenseURI(QString::fromUtf8(license));
+			} else {
+				uri_t uri = ll_get_default();
+				licenseChooser->setLicenseURI(QString::fromUtf8(uri),false);
+				free(uri);
+			}
 		}
 	}
 }
