@@ -217,8 +217,11 @@ void LicenseChooser::setLicenseURI( const QString &uriString, bool useImmediatel
 	ll_free_list(attrs);
 
 	updateLicense();
-	chooserWidget->uriEdit->setText(uriString); //do this after updateLicense() in case this is a custom uri
-	emit licenseChanged();
+
+	//emits that the license changed
+	chooserWidget->licenseCombo->setCurrentIndex( chooserWidget->licenseCombo->findData( QVariant(uriString) ) );
+
+	chooserWidget->uriEdit->setText(uriString); //do this after updateLicense() and setCurrentIndex() in case this is a custom uri
 }
 
 void LicenseChooser::updateJurisdiction()
