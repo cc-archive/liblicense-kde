@@ -61,7 +61,7 @@ LicenseChooser::LicenseChooser( QWidget *parent )
 
 	permits_flags = requires_flags = prohibits_flags = LL_UNSPECIFIED;
 
-	juris_t *jurisdictions = ll_get_jurisdictions();
+	ll_juris_t *jurisdictions = ll_get_jurisdictions();
 	int i;
 	int len = ll_list_length(jurisdictions);
 	for (i=0; i<len; ++i) {
@@ -121,7 +121,7 @@ LicenseChooser::~LicenseChooser()
 
 void LicenseChooser::restoreDefault()
 {
-	uri_t uri = ll_get_default();
+	ll_uri_t uri = ll_get_default();
 	setLicenseURI(uri);
 	free(uri);
 }
@@ -150,7 +150,7 @@ void LicenseChooser::setLicenseURI( const QString &uriString, bool useImmediatel
 	char **attrs;
 
 	const QByteArray uri_ba = uriString.toUtf8();
-	const uri_t uri = (const uri_t)uri_ba.data();
+	const ll_uri_t uri = (const ll_uri_t)uri_ba.data();
 
 	signalMapper->blockSignals(true);
 	chooserWidget->sharingCheckBox->setChecked(false);
@@ -245,7 +245,7 @@ void LicenseChooser::updateLicense()
 
 	const ll_license_list_t *licenses = ll_get_licenses_from_flags(chooser,permits_flags,requires_flags,prohibits_flags);
 	if (licenses) {
-		const uri_t uri = (const uri_t)licenses->license;
+		const ll_uri_t uri = (const ll_uri_t)licenses->license;
 		chooserWidget->uriEdit->setText(QString::fromUtf8(uri));
 
 		char *name;
@@ -253,8 +253,8 @@ void LicenseChooser::updateLicense()
 		QString version;
 		const ll_license_list_t *license = licenses;
 		while (license) {
-			name = ll_get_name((uri_t)license->license);
-			v = ll_get_version((uri_t)license->license);
+			name = ll_get_name((ll_uri_t)license->license);
+			v = ll_get_version((ll_uri_t)license->license);
 			if (v) {
 				QStringList versionList;
 				int i;
@@ -264,7 +264,7 @@ void LicenseChooser::updateLicense()
 				version = QString(" - %1").arg(versionList.join("."));
 			}
 	
-			name = ll_get_name((uri_t)license->license);
+			name = ll_get_name((ll_uri_t)license->license);
 			chooserWidget->licenseCombo->addItem(QString("%1%2")
 					.arg(QString::fromUtf8(name))
 					.arg(version), QVariant(QString(license->license)));

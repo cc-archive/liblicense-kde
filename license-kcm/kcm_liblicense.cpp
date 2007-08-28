@@ -60,7 +60,7 @@ void KCMLiblicense::load()
 void KCMLiblicense::save()
 {
 	const QByteArray uri_ba = licenseChooser->licenseURI().toUtf8();
-	ll_set_default((const uri_t)uri_ba.data());
+	ll_set_default((const ll_uri_t)uri_ba.data());
 }
 
 void KCMLiblicense::defaults()

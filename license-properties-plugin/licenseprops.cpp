@@ -58,7 +58,7 @@ LicensePropsPlugin::LicensePropsPlugin(KPropertiesDialog *_props, const QStringL
 			if (license) {
 				licenseChooser->setLicenseURI(QString::fromUtf8(license));
 			} else {
-				uri_t uri = ll_get_default();
+				ll_uri_t uri = ll_get_default();
 				licenseChooser->setLicenseURI(QString::fromUtf8(uri),false);
 				free(uri);
 			}
